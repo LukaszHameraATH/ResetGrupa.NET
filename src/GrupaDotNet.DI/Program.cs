@@ -19,6 +19,12 @@ services.AddTransient<IMailSender>(x=>new MailSender("Config"));
 
 services.AddScoped<ScopedService>();
 
+services.AddTransient<ILogger, FileLogger>(x => new FileLogger("logi.txt"));
+services.AddTransient<ILogger, ConsoleLogger>();
+services.AddTransient<MainLogger>();
+
+services.Decorate<ISMSSender, SmsSenderLoggingDecorator>();
+
 using var provider = services.BuildServiceProvider();
 
 var notifier = provider.GetRequiredService<Notifier>();
@@ -36,9 +42,21 @@ var scopeProvider2 = scope2.ServiceProvider;
 var scoped3 = scopeProvider2.GetService<ScopedService>();
 var scoped4 = scopeProvider2.GetService<ScopedService>();
 
+var logger = provider.GetRequiredService<MainLogger>();
+logger.Log("Cześć z Grupy .NET!");
+
+var logger2 = provider.GetService<ILogger>(); // ConsoleLogger - ostatni zarejestrowany pod ILogger
+// może być błąd
+// może wyciągnąć FileLogger
+// może wyciagnąć ConsoleLogger
+// może zwrócić null
+
 // plan na następne spotkania
 // inne biblioteki do DI - szybko, AutoFAC, Ninja, Unity (?),
 // ASP.NET - rozdzielenie warstw z DI,
+
+var smsSender = provider.GetRequiredService<ISMSSender>();
+smsSender.Send("35", "test");
 
 Console.ReadKey();
 
@@ -144,6 +162,69 @@ public interface ISMSSender
 public interface IMailSender
 {
     public void Send(string email, string message);
+}
+
+interface ILogger
+{
+    void Log(string message);
+}
+
+class FileLogger: ILogger
+{
+    private readonly string _filePath;
+
+    public FileLogger(string filePath)
+    {
+        _filePath = filePath;
+    }
+    
+    public void Log(string message)
+    {
+        File.AppendAllText(_filePath, message);
+    }
+}
+
+class ConsoleLogger: ILogger
+{
+    public void Log(string message)
+    {
+        Console.WriteLine(message);
+    }
+}
+
+class MainLogger : ILogger
+{
+    private readonly IEnumerable<ILogger> _loggers;
+
+    public MainLogger(IEnumerable<ILogger> loggers)
+    {
+        _loggers = loggers;
+    }
+    
+    public void Log(string message)
+    { 
+        foreach (var logger in _loggers)
+        {
+            logger.Log("Cześć z Grupa .NET!");
+        }
+    }
+}
+
+class SmsSenderLoggingDecorator: ISMSSender
+{
+    private readonly ISMSSender _sender;
+
+    public SmsSenderLoggingDecorator(ISMSSender sender)
+    {
+        _sender = sender;
+    }
+    
+    public void Send(string phone, string message)
+    {
+        Console.WriteLine("Rozpoczynam wysyłkę smsa");
+        _sender.Send(phone, message);
+        Console.WriteLine("Wysłałem smsa");
+    }
 }
 
 // 2. IoC
