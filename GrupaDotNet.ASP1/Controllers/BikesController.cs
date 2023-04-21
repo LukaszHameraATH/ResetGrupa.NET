@@ -22,6 +22,7 @@ namespace GrupaDotNet.ASP1.Controllers
         public IEnumerable<BikeDTO> Get()
         {
             var bikes = _bikeRepository.GetAll();
+            //...
             return bikes.Select(x=> new BikeDTO(x));
         }
 
@@ -29,6 +30,7 @@ namespace GrupaDotNet.ASP1.Controllers
         public void Add(AddBikeDTO command)
         {
             var newBike = new Bike(command.Id, command.Name);
+            //...
             _bikeRepository.Add(newBike);
         }
 
