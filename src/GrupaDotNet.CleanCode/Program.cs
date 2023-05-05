@@ -29,7 +29,7 @@ class ConfigurationReader
 {
     public Configuration Read()
     {
-        
+        return new Configuration();
     }
 }
 
