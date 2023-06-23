@@ -45,6 +45,7 @@ namespace GrupaDotNet.Questions1Benchmark
     {
         public int A;
     }
+
     class ClassB
     {
         public int A;
@@ -64,4 +65,29 @@ namespace GrupaDotNet.Questions1Benchmark
     {
         public int A;
     }
+}
+
+abstract class ClassBaseA
+{
+
+}
+
+abstract class ClassBaseB
+{
+
+}
+
+interface IInterfaceA
+{
+
+}
+interface IInterfaceB
+{
+
+}
+
+class ABC: ClassBaseA, IInterfaceA, IInterfaceB //ClassBaseB, <- nie można dziedziczyć z wielu klas
+{
+     
+
 }
