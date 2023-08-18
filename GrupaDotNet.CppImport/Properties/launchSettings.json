@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GrupaDotNet.CppImport": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}
